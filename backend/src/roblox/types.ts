@@ -12,7 +12,8 @@ export type CommandType =
   | "prop"
   | "clear"
   | "system"
-  | "map";
+  | "map"
+  | "asset";
 
 export type MapKind = "warmap" | "arena";
 
@@ -98,6 +99,14 @@ export interface MapCommand extends BaseCommand {
   spawns: SpawnPointSpec[];
 }
 
+export interface AssetCommand extends BaseCommand {
+  type: "asset";
+  /** Roblox asset id passed to InsertService:LoadAsset in Studio. */
+  assetId: string;
+  /** Library name, used in the result message. */
+  name?: string;
+}
+
 export type RobloxCommand =
   | SkyCommand
   | LightingCommand
@@ -106,4 +115,5 @@ export type RobloxCommand =
   | PropCommand
   | ClearCommand
   | SystemCommand
-  | MapCommand;
+  | MapCommand
+  | AssetCommand;

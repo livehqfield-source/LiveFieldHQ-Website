@@ -18,6 +18,7 @@ local TOOLBAR_NAME = "LiveFieldHQ"
 local DEFAULT_URL = "http://127.0.0.1:4000"
 local POLL_INTERVAL = 1
 local FOLDER_NAME = "LiveFieldHQ"
+local ASSETS_FOLDER_NAME = "Assets"
 
 local SETTING_URL = "BaseUrl"
 local SETTING_TOKEN = "Token"
@@ -65,6 +66,18 @@ local function getBuildFolder(): Folder
 	local folder = Instance.new("Folder")
 	folder.Name = FOLDER_NAME
 	folder.Parent = Workspace
+	return folder
+end
+
+-- Inserted assets live in their own subfolder so they stay separate from the
+-- generated maps and props.
+local function getAssetFolder(): Folder
+	local root = getBuildFolder()
+	local existing = root:FindFirstChild(ASSETS_FOLDER_NAME)
+	if existing then return existing end
+	local folder = Instance.new("Folder")
+	folder.Name = ASSETS_FOLDER_NAME
+	folder.Parent = root
 	return folder
 end
 
@@ -631,6 +644,34 @@ local function applySystem(cmd: any): string
 	)
 end
 
+-- Inserts a linked Roblox asset (Creator Store / library id) into the place.
+-- Everything lands under Workspace.LiveFieldHQ.Assets so "clear" still works.
+local function applyAsset(cmd: any): string
+	local assetId = tonumber(cmd.assetId)
+	if type(assetId) ~= "number" or assetId <= 0 then
+		error("asset is missing a valid id")
+	end
+
+	local insertService = game:GetService("InsertService")
+	local ok, asset = pcall(function()
+		return insertService:LoadAsset(assetId)
+	end)
+
+	if not ok or typeof(asset) ~= "Instance" then
+		error(string.format("could not load asset %d - check it is free or owned and approved", assetId))
+	end
+
+	local folder = getAssetFolder()
+	asset.Parent = folder
+
+	if not asset:IsDescendantOf(folder) then
+		error(string.format("asset %d loaded but nothing was inserted", assetId))
+	end
+
+	local label = tostring(cmd.name or asset.Name or ("Asset " .. assetId))
+	return string.format("Inserted %s (asset %d)", label, assetId)
+end
+
 local function applyClear(target: string): string
 	if target == "all" then
 		local folder = Workspace:FindFirstChild(FOLDER_NAME)
@@ -678,6 +719,8 @@ local function applyCommand(cmd: any): string
 		return applySystem(cmd)
 	elseif kind == "map" then
 		return applyMap(tostring(cmd.map or "warmap"), cmd)
+	elseif kind == "asset" then
+		return applyAsset(cmd)
 	end
 
 	error("unknown command type: " .. tostring(kind))

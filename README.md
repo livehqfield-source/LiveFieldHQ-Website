@@ -115,6 +115,23 @@ the same for B. Name only one to get a single spawn; name neither and you get bo
 
 Re-building a warmap replaces the previous one rather than stacking a second arena.
 
+## Assets
+
+The **Assets** tab in the Roblox Builder is a library of Roblox assets you want in
+your place. Paste a Creator Store link or an asset id and it is saved locally:
+
+- `https://create.roblox.com/store/asset/123456789/Some-Tree`
+- `123456789`
+
+Click **Insert** on a saved asset and the plugin loads it into Studio with
+`InsertService:LoadAsset`, under `Workspace.LiveFieldHQ.Assets`. "Clear all"
+removes inserted assets along with everything else the builder made.
+
+The library lives in `backend/data/assets.json`. Only the asset id is sent to
+Studio, so it works for any free or owned asset — models, meshes, audio, and so
+on. Assets you do not own, or that are not approved, fail with a clear message in
+the **Recent inserts** list.
+
 ## Try it
 
 - `build me a sky`
@@ -143,6 +160,10 @@ Voice input uses the browser's Web Speech API (Chrome/Edge). Text works in any b
 | `POST /api/roblox/projects/active` | Set or clear the active project          |
 | `POST /api/roblox/projects/:id/open` | Launch Studio on that place file       |
 | `DELETE /api/roblox/projects/:id`  | Remove a project                         |
+| `GET /api/roblox/assets`           | Asset library                            |
+| `POST /api/roblox/assets`          | `{ url, name? }` → link an asset          |
+| `POST /api/roblox/assets/:id/insert` | Queue an insert into the open place    |
+| `DELETE /api/roblox/assets/:id`    | Remove an asset from the library         |
 | `GET /api/roblox/jobs`             | Plugin poll — returns pending jobs       |
 | `POST /api/roblox/jobs/:id/result` | Plugin reports a result                  |
 

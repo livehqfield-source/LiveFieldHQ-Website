@@ -13,6 +13,7 @@ import {
   setActiveProject,
   setStudioPlace,
 } from "../roblox/projects";
+import { addAsset, getAsset, listAssets, removeAsset } from "../roblox/assets";
 import {
   claimPending,
   completeJob,
@@ -179,6 +180,62 @@ robloxRouter.post("/projects/:id/open", (req: Request, res: Response) => {
   }
   const result = openProjectInStudio(project);
   res.status(result.ok ? 200 : 400).json(result);
+});
+
+// --- Asset library ---
+
+robloxRouter.get("/assets", (_req: Request, res: Response) => {
+  res.json({ assets: listAssets() });
+});
+
+robloxRouter.post("/assets", (req: Request, res: Response) => {
+  const url = typeof req.body?.url === "string" ? req.body.url : "";
+  const name = typeof req.body?.name === "string" ? req.body.name : "";
+
+  if (!url.trim()) {
+    res.status(400).json({ error: "expected { url: string } — a Roblox asset link or id" });
+    return;
+  }
+
+  const asset = addAsset({ name, url });
+  if (!asset) {
+    res.status(400).json({
+      error:
+        "Could not read a Roblox asset id from that. Paste a Creator Store link or a numeric asset id.",
+    });
+    return;
+  }
+
+  res.json({ asset });
+});
+
+robloxRouter.delete("/assets/:id", (req: Request, res: Response) => {
+  if (!removeAsset(req.params.id)) {
+    res.status(404).json({ error: "unknown asset" });
+    return;
+  }
+  res.json({ removed: true });
+});
+
+robloxRouter.post("/assets/:id/insert", (req: Request, res: Response) => {
+  const asset = getAsset(req.params.id);
+  if (!asset) {
+    res.status(404).json({ error: "unknown asset" });
+    return;
+  }
+
+  const job = createJob(`insert asset ${asset.name}`, "text", {
+    type: "asset",
+    assetId: asset.assetId,
+    name: asset.name,
+    label: `Asset — ${asset.name}`,
+  });
+
+  res.json({
+    accepted: true,
+    jobId: job.id,
+    reply: `Queued insert for ${asset.name}. It lands in Workspace.LiveFieldHQ.Assets.`,
+  });
 });
 
 // --- Plugin-facing endpoints (token required) ---

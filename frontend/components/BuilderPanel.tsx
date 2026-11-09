@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { getBackendUrl } from "@/lib/api";
 import ProjectsPanel from "@/components/ProjectsPanel";
+import AssetsPanel from "@/components/AssetsPanel";
 import { useSpeechInput } from "@/lib/useSpeechInput";
 
 type JobStatus = "queued" | "claimed" | "done" | "failed";
@@ -45,6 +46,7 @@ export default function BuilderPanel() {
   const [notice, setNotice] = useState<string | null>(null);
   const [showSetup, setShowSetup] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [tab, setTab] = useState<"builder" | "assets">("builder");
 
   const refresh = useCallback(async () => {
     try {
@@ -170,7 +172,28 @@ export default function BuilderPanel() {
         </div>
       )}
 
-      <ProjectsPanel />
+      <div className="tab-bar">
+        <button
+          type="button"
+          className={`tab${tab === "builder" ? " active" : ""}`}
+          onClick={() => setTab("builder")}
+        >
+          Builder
+        </button>
+        <button
+          type="button"
+          className={`tab${tab === "assets" ? " active" : ""}`}
+          onClick={() => setTab("assets")}
+        >
+          Assets
+        </button>
+      </div>
+
+      {tab === "assets" ? (
+        <AssetsPanel />
+      ) : (
+        <>
+          <ProjectsPanel />
 
       <div className="composer">
         <input
@@ -233,6 +256,8 @@ export default function BuilderPanel() {
           </div>
         ))}
       </div>
+        </>
+      )}
     </div>
   );
 }
