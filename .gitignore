@@ -1,0 +1,26 @@
+# Dependencies
+node_modules/
+
+# Build output
+frontend/.next/
+frontend/out/
+backend/dist/
+*.tsbuildinfo
+
+# Runtime data (recreated automatically on startup)
+backend/data/
+
+# Local environment
+.env.local
+.env*.local
+
+# Agent / tooling state
+.minions/
+minions/
+
+# Logs
+*.log
+
+# OS junk
+.DS_Store
+Thumbs.db

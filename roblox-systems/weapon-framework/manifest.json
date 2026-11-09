@@ -1,0 +1,55 @@
+{
+  "id": "weapon-framework",
+  "name": "Modular Weapon Framework",
+  "description": "Raycast shooting, headshot multiplier, damage falloff, reload, ammo, recoil and animation hooks, plus a Vandal-style assault rifle.",
+  "keywords": [
+    "weapon framework",
+    "weapon system",
+    "modular weapon",
+    "gun system",
+    "shooting system",
+    "vandal",
+    "assault rifle",
+    "gun"
+  ],
+  "files": [
+    {
+      "kind": "script",
+      "name": "WeaponFramework",
+      "source": "WeaponFramework.luau",
+      "className": "ModuleScript",
+      "location": "ReplicatedStorage",
+      "folder": "LiveFieldHQ_Weapons"
+    },
+    {
+      "kind": "script",
+      "name": "Vandal",
+      "source": "Vandal.luau",
+      "className": "ModuleScript",
+      "location": "ReplicatedStorage",
+      "folder": "LiveFieldHQ_Weapons"
+    },
+    {
+      "kind": "script",
+      "name": "WeaponClient",
+      "source": "WeaponClient.luau",
+      "className": "LocalScript",
+      "location": "StarterPlayerScripts",
+      "folder": "LiveFieldHQ_Weapons"
+    },
+    {
+      "kind": "script",
+      "name": "WeaponServer",
+      "source": "WeaponServer.luau",
+      "className": "Script",
+      "location": "ServerScriptService",
+      "folder": "LiveFieldHQ_Weapons"
+    },
+    {
+      "kind": "instance",
+      "name": "LiveFieldHQ_Vandal",
+      "className": "Tool",
+      "location": "StarterPack"
+    }
+  ]
+}
