@@ -132,6 +132,41 @@ Studio, so it works for any free or owned asset — models, meshes, audio, and s
 on. Assets you do not own, or that are not approved, fail with a clear message in
 the **Recent inserts** list.
 
+## Building anything with Ollama
+
+The builder is not limited to its built-in commands. When a request matches none
+of them, the backend asks a local model to write a system, saves it to
+`roblox-systems/`, and installs it in the open place.
+
+```bash
+# nothing to install — Ollama is the only requirement
+ollama pull qwen2.5-coder:7b
+
+# optional — defaults shown
+OLLAMA_URL=http://localhost:11434 OLLAMA_MODEL=qwen2.5-coder:7b npm run dev
+```
+
+Then just ask:
+
+> create me a lobby screen with a play button
+
+The model returns a manifest plus Luau, the backend writes
+`roblox-systems/lobby-screen/`, and the plugin installs it like any other system.
+The request took about 18 seconds on an RTX 5060.
+
+Because the generated system is saved, its keywords become ordinary menu items —
+after the first generation, "create a lobby screen" installs instantly without
+calling the model again.
+
+**Read the generated code before you trust it.** Local 7–10B models produce
+plausible but sometimes wrong Luau. The plugin verifies that the files landed, but
+it does not check that the code is correct. "Clear all" removes generated systems
+along with everything else.
+
+Model quality is the limiting factor. If the local model is not good enough, set
+`OLLAMA_MODEL` to a stronger local model, or point `OLLAMA_URL` at any
+OpenAI-compatible endpoint.
+
 ## Try it
 
 - `build me a sky`
@@ -153,7 +188,7 @@ Voice input uses the browser's Web Speech API (Chrome/Edge). Text works in any b
 | --------------------------------- | ---------------------------------------- |
 | `GET /api/health`                  | Backend status and uptime                |
 | `GET /api/roblox/status`           | Bridge state, queue depth, active project |
-| `POST /api/roblox/command`         | `{ text, source }` → parse + enqueue     |
+| `POST /api/roblox/command`         | `{ text, source }` → parse, enqueue, or ask Ollama |
 | `GET /api/roblox/jobs/recent`      | Last 20 jobs (used by the UI)            |
 | `GET /api/roblox/projects`         | Project list, active id, studio place    |
 | `POST /api/roblox/projects`        | Add a project                            |

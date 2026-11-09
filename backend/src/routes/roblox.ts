@@ -14,6 +14,7 @@ import {
   setStudioPlace,
 } from "../roblox/projects";
 import { addAsset, getAsset, listAssets, removeAsset } from "../roblox/assets";
+import { generateAndInstall, llmModel } from "../roblox/llm";
 import {
   claimPending,
   completeJob,
@@ -66,6 +67,7 @@ robloxRouter.get("/status", (_req: Request, res: Response) => {
     status: online ? "online" : "offline",
     builder: "Roblox Builder",
     games: [],
+    llm: { model: llmModel() },
     message: online
       ? mismatch
         ? `Studio is editing a different place than the active project "${active.name}".`
@@ -87,7 +89,7 @@ robloxRouter.get("/status", (_req: Request, res: Response) => {
   });
 });
 
-robloxRouter.post("/command", (req: Request, res: Response) => {
+robloxRouter.post("/command", async (req: Request, res: Response) => {
   const raw = req.body?.text;
   const source: JobSource = req.body?.source === "voice" ? "voice" : "text";
 
@@ -100,12 +102,26 @@ robloxRouter.post("/command", (req: Request, res: Response) => {
   const parsed = parseIntent(trimmed);
 
   if (!parsed) {
-    res.json({
-      accepted: false,
-      jobId: null,
-      reply:
-        "I didn't recognise that. Try things like \"build me a sunset sky\", \"add a red block 10x10x10 at 0,5,0\", \"build a tree\" or \"clear all parts\".",
-    });
+    // Not a built-in command — ask the local model to build it as a system.
+    const generated = await generateAndInstall(trimmed, source);
+    if (generated.ok) {
+      res.json({
+        accepted: true,
+        jobId: generated.jobId,
+        command: {
+          type: "system",
+          label: `System — ${generated.system?.name ?? "Generated"}`,
+        },
+        status: "queued",
+        reply: `Built and installing ${generated.system?.name ?? "a system"}.`,
+      });
+    } else {
+      res.json({
+        accepted: false,
+        jobId: null,
+        reply: `I couldn't build that, and the local model failed: ${generated.error ?? "unknown error"}`,
+      });
+    }
     return;
   }
 

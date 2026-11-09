@@ -1,0 +1,19 @@
+{
+  "id": "lobby-screen",
+  "name": "Lobby Screen",
+  "description": "A simple lobby screen with a play button.",
+  "keywords": [
+    "lobby",
+    "play button"
+  ],
+  "files": [
+    {
+      "kind": "script",
+      "name": "LobbyScreen",
+      "className": "LocalScript",
+      "location": "StarterPlayerScripts",
+      "folder": "LiveFieldHQ_Lobby",
+      "source": "LobbyScreen.luau"
+    }
+  ]
+}

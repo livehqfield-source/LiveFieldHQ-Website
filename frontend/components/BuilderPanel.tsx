@@ -74,6 +74,9 @@ export default function BuilderPanel() {
 
       setSending(true);
       setNotice(null);
+      const slow = setTimeout(() => {
+        setNotice("Still working — the local model can take a minute…");
+      }, 5000);
       try {
         const res = await fetch(`${getBackendUrl()}/api/roblox/command`, {
           method: "POST",
@@ -85,6 +88,7 @@ export default function BuilderPanel() {
       } catch {
         setNotice("Could not reach the backend.");
       } finally {
+        clearTimeout(slow);
         setSending(false);
         setText("");
         await refresh();
@@ -223,7 +227,7 @@ export default function BuilderPanel() {
           onClick={() => void send(text, "text")}
           disabled={sending || !text.trim()}
         >
-          Build
+          {sending ? "Working…" : "Build"}
         </button>
       </div>
 
